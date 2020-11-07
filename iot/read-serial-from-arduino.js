@@ -15,8 +15,8 @@ const Sample = mongoose.model("Sample", {
 const parser = port.pipe(new Readline());
 parser.on("data", async (val) => {
   try {
-    const dummySample = new Sample({ timestamp: Date.now(), value: val });
-    await dummySample.save();
+    const sample = new Sample({ timestamp: Date.now(), value: val });
+    await sample.save();
   } catch (err) {
     console.error(
       `${new Date().toISOString()} failed to save sample to database`
