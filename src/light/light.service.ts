@@ -3,11 +3,12 @@ import samplesService from "../samples/samples.service";
 
 class LightService {
   async getCurrentLighting(): Promise<IlluminanceLevel> {
-    const meanIlluminanceValue = await samplesService.aggregateLastValues(5);
+    const meanIlluminanceValue = await samplesService.aggregateLastValues(2);
+    console.log(meanIlluminanceValue);
     const normalizedValue = this.normalizeValues({
       inMin: 1,
       inMax: 800,
-      outMin: 1,
+      outMin: 0.6,
       outMax: 5,
       value: meanIlluminanceValue,
     });
@@ -23,7 +24,8 @@ class LightService {
     value: number;
   }) {
     const { inMax, inMin, outMax, outMin, value } = params;
-    return Number((((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin).toFixed(1));
+    const fixedValue = value > 800 ? 800 : value
+    return Number((((fixedValue - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin).toFixed(1));
   }
 }
 

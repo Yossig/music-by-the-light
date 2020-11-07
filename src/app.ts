@@ -74,32 +74,46 @@ async function decideMusic(
 ) {
   switch (illuminanceLevel) {
     case IlluminanceLevel.CompleteDarkness: {
+      const {body} = await spotifyApi.getPlaylistTracks('5EqPp1jFbJmit3wRFBJT2w');
       await spotifyApi.play({
         context_uri: "spotify:playlist:5EqPp1jFbJmit3wRFBJT2w",
+        offset:{position: randomTrackNumber(body.items.length)}
       });
       break;
     }
     case IlluminanceLevel.DimLight: {
+      const {body} = await spotifyApi.getPlaylistTracks('1QfzeppkIDu9QKs29pfT4n');
       await spotifyApi.play({
         context_uri: "spotify:playlist:1QfzeppkIDu9QKs29pfT4n",
+        offset:{position: randomTrackNumber(body.items.length)}
+
       });
       break;
     }
     case IlluminanceLevel.Twilight: {
+      const {body} = await spotifyApi.getPlaylistTracks('1kP2MdDfzBbXSWpWVf4Iv3');
       await spotifyApi.play({
         context_uri: "spotify:playlist:1kP2MdDfzBbXSWpWVf4Iv3",
+        offset:{position: randomTrackNumber(body.items.length)}
+
       });
       break;
     }
     case IlluminanceLevel.BrightLight: {
+      const {body} = await spotifyApi.getPlaylistTracks('2Wj5WRce1HrWJtKmfou6BJ');
       await spotifyApi.play({
         context_uri: "spotify:playlist:2Wj5WRce1HrWJtKmfou6BJ",
+        offset:{position: randomTrackNumber(body.items.length)}
+
       });
       break;
     }
     case IlluminanceLevel.FullBrightness: {
+      const {body} = await spotifyApi.getPlaylistTracks('3mtiLE4r15B7c6CV5nLoPb');
       await spotifyApi.play({
         context_uri: "spotify:playlist:3mtiLE4r15B7c6CV5nLoPb",
+        offset:{position: randomTrackNumber(body.items.length)}
+
       });
       break;
     }
@@ -113,4 +127,8 @@ async function initMongoDbConnection() {
     `mongodb+srv://${mongoDbUsername}:${mongoDbPassword}@cluster0.dvazg.mongodb.net/samples?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   );
+}
+
+function randomTrackNumber(numberOfTrackInPlaylist:number):number {
+  return Math.floor(Math.random() * numberOfTrackInPlaylist);
 }
