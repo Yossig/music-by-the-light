@@ -11,7 +11,7 @@ class LightService {
       outMax: 5,
       value: meanIlluminanceValue,
     });
-    
+    console.log(normalizedValue);
     return Math.ceil(normalizedValue);
   }
 
