@@ -2,16 +2,17 @@ import SpotifyWebApi from "spotify-web-api-node";
 import mongoose, { mongo } from "mongoose";
 import lightService from "./light/light.service";
 import { IlluminanceLevel } from "./light/light.enum";
-import readline from "readline";
+import spotifyApiWrapper from "./spotify/spotify.api";
+
 (async () => {
   await initMongoDbConnection();
-  const spotifyApi = await registerSpotifyApi();
+  await spotifyApiWrapper.registerSpotifyApi();
   let lastIlluminanceLevel;
   while (true) {
     const currentIlluminanceLevel: IlluminanceLevel = await lightService.getCurrentLighting();
-    console.log(currentIlluminanceLevel);
+    console.log(`Current Illuminance: ${currentIlluminanceLevel}`);
     if (currentIlluminanceLevel !== lastIlluminanceLevel) {
-      await decideMusic(currentIlluminanceLevel, spotifyApi);
+      await decideMusic(currentIlluminanceLevel);
     }
     await syncTimeOut(1000);
     lastIlluminanceLevel = currentIlluminanceLevel;
@@ -30,91 +31,26 @@ async function syncTimeOut(timeout: number) {
   });
 }
 
-async function syncReadLine(): Promise<string> {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-    rl.question("Enter the code:", (answer) => {
-      resolve(answer);
-      rl.close();
-    });
-  });
-}
-
-async function registerSpotifyApi(): Promise<SpotifyWebApi> {
-  const spotifyApi = new SpotifyWebApi({
-    clientId: "a8c4767eeca84ba38d3d8c9a86682503",
-    clientSecret: "7335050c977e4251bd5709e83bbf103e",
-    redirectUri: "https://www.google.com/",
-  });
-  try {
-    const refreshToken = process.env.REFRESH_TOKEN ?? "";
-    spotifyApi.setRefreshToken(refreshToken);
-    const accessToken = await spotifyApi.refreshAccessToken();
-    spotifyApi.setAccessToken(accessToken.body.access_token);
-  } catch (err) {
-    const url = spotifyApi.createAuthorizeURL(["streaming"], "my-state");
-    console.log("Get the code");
-    console.log(url);
-    let code = await syncReadLine();
-    const { body: authData } = await spotifyApi.authorizationCodeGrant(code);
-    console.log(authData);
-    spotifyApi.setAccessToken(authData.access_token);
-    spotifyApi.setRefreshToken(authData.refresh_token);
-  }
-
-  return spotifyApi;
-}
-
-async function decideMusic(
-  illuminanceLevel: IlluminanceLevel,
-  spotifyApi: SpotifyWebApi
-) {
+async function decideMusic(illuminanceLevel: IlluminanceLevel) {
   switch (illuminanceLevel) {
     case IlluminanceLevel.CompleteDarkness: {
-      const {body} = await spotifyApi.getPlaylistTracks('5EqPp1jFbJmit3wRFBJT2w');
-      await spotifyApi.play({
-        context_uri: "spotify:playlist:5EqPp1jFbJmit3wRFBJT2w",
-        offset:{position: randomTrackNumber(body.items.length)}
-      });
+      await spotifyApiWrapper.playPlaylist(illuminanceLevel);
       break;
     }
     case IlluminanceLevel.DimLight: {
-      const {body} = await spotifyApi.getPlaylistTracks('1QfzeppkIDu9QKs29pfT4n');
-      await spotifyApi.play({
-        context_uri: "spotify:playlist:1QfzeppkIDu9QKs29pfT4n",
-        offset:{position: randomTrackNumber(body.items.length)}
-
-      });
+      await spotifyApiWrapper.playPlaylist(illuminanceLevel);
       break;
     }
     case IlluminanceLevel.Twilight: {
-      const {body} = await spotifyApi.getPlaylistTracks('1kP2MdDfzBbXSWpWVf4Iv3');
-      await spotifyApi.play({
-        context_uri: "spotify:playlist:1kP2MdDfzBbXSWpWVf4Iv3",
-        offset:{position: randomTrackNumber(body.items.length)}
-
-      });
+      await spotifyApiWrapper.playPlaylist(illuminanceLevel);
       break;
     }
     case IlluminanceLevel.BrightLight: {
-      const {body} = await spotifyApi.getPlaylistTracks('2Wj5WRce1HrWJtKmfou6BJ');
-      await spotifyApi.play({
-        context_uri: "spotify:playlist:2Wj5WRce1HrWJtKmfou6BJ",
-        offset:{position: randomTrackNumber(body.items.length)}
-
-      });
+      await spotifyApiWrapper.playPlaylist(illuminanceLevel);
       break;
     }
     case IlluminanceLevel.FullBrightness: {
-      const {body} = await spotifyApi.getPlaylistTracks('3mtiLE4r15B7c6CV5nLoPb');
-      await spotifyApi.play({
-        context_uri: "spotify:playlist:3mtiLE4r15B7c6CV5nLoPb",
-        offset:{position: randomTrackNumber(body.items.length)}
-
-      });
+      await spotifyApiWrapper.playPlaylist(illuminanceLevel);
       break;
     }
   }
@@ -127,8 +63,4 @@ async function initMongoDbConnection() {
     `mongodb+srv://${mongoDbUsername}:${mongoDbPassword}@cluster0.dvazg.mongodb.net/samples?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   );
-}
-
-function randomTrackNumber(numberOfTrackInPlaylist:number):number {
-  return Math.floor(Math.random() * numberOfTrackInPlaylist);
 }
