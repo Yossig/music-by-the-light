@@ -25,7 +25,7 @@ import readline from "readline";
   const { body: authData } = await spotifyApi.authorizationCodeGrant(code);
   spotifyApi.setAccessToken(authData.access_token);
   spotifyApi.setRefreshToken(authData.refresh_token);
-  let lastIlluminanceLevel = await lightService.getCurrentLighting();
+  let lastIlluminanceLevel;
   while (true) {
     const currentIlluminanceLevel: IlluminanceLevel = await lightService.getCurrentLighting();
     if (currentIlluminanceLevel !== lastIlluminanceLevel) {
