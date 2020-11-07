@@ -1,5 +1,4 @@
-import SpotifyWebApi from "spotify-web-api-node";
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import lightService from "./light/light.service";
 import { IlluminanceLevel } from "./light/light.enum";
 import spotifyApiWrapper from "./spotify/spotify.api";
@@ -23,12 +22,13 @@ import spotifyApiWrapper from "./spotify/spotify.api";
     console.error(err);
   });
 
-async function syncTimeOut(timeout: number) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, timeout);
-  });
+async function initMongoDbConnection() {
+  const mongoDbUsername = process.env.MONGO_DB_USERNAME;
+  const mongoDbPassword = process.env.MONGO_DB_PASSWORD;
+  return mongoose.connect(
+    `mongodb+srv://${mongoDbUsername}:${mongoDbPassword}@cluster0.dvazg.mongodb.net/samples?retryWrites=true&w=majority`,
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  );
 }
 
 async function decideMusic(illuminanceLevel: IlluminanceLevel) {
@@ -56,11 +56,10 @@ async function decideMusic(illuminanceLevel: IlluminanceLevel) {
   }
 }
 
-async function initMongoDbConnection() {
-  const mongoDbUsername = process.env.MONGO_DB_USERNAME;
-  const mongoDbPassword = process.env.MONGO_DB_PASSWORD;
-  return mongoose.connect(
-    `mongodb+srv://${mongoDbUsername}:${mongoDbPassword}@cluster0.dvazg.mongodb.net/samples?retryWrites=true&w=majority`,
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  );
+async function syncTimeOut(timeout: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, timeout);
+  });
 }

@@ -1,11 +1,5 @@
-import { SampleSchema, Sample } from "../models/sample.model";
+import { SampleSchema, Sample } from "./sample.model";
 class SamplesService {
-  constructor() {}
-
-  private async getLatestValue() {
-    return Sample.findOne({}).sort({ timestamp: -1 }).exec();
-  }
-
   private async getLastValues(numberOfSamplesToPull: number) {
     return Sample.find(
       {},

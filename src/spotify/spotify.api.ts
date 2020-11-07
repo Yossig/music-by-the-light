@@ -40,7 +40,7 @@ class SpotifyApiWrapper {
     }
   }
 
-  async syncReadLine(): Promise<string> {
+  private async syncReadLine(): Promise<string> {
     return new Promise((resolve) => {
       const rl = readline.createInterface({
         input: process.stdin,
@@ -69,13 +69,13 @@ class SpotifyApiWrapper {
     }
   }
 
-  async getPlayUserlistByName(playlistName: string) {
+  private async getPlayUserlistByName(playlistName: string) {
     const { body } = await this.spotifyApi.getUserPlaylists();
     const userPlaylists = body.items;
     return userPlaylists.find((playlist) => playlist.name === playlistName);
   }
 
-  randomTrackNumber(numberOfTrackInPlaylist: number): number {
+  private randomTrackNumber(numberOfTrackInPlaylist: number): number {
     return Math.floor(Math.random() * numberOfTrackInPlaylist);
   }
 }
